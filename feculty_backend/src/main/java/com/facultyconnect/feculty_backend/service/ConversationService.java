@@ -57,8 +57,7 @@ public class ConversationService {
 
         // --- Check if conversation already exists between these two ---
         Optional<Conversation> existing = conversationRepository
-                .findByParticipantIdsContainingAndParticipantIdsContaining(
-                        currentEmail, targetEmail);
+                .findByParticipantIds(currentEmail, targetEmail);
 
         if (existing.isPresent()) {
             return toResponse(existing.get());

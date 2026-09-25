@@ -106,6 +106,19 @@ public class MessageService {
         return messages.stream().map(this::toResponse).toList();
     }
 
+    /**
+     * Update status of a message by messageId.
+     *
+     * @param messageId the ID of the message
+     * @param status    the new status (e.g. DELIVERED)
+     */
+    public void updateMessageStatus(String messageId, String status) {
+        messageRepository.findByMessageId(messageId).ifPresent(msg -> {
+            msg.setStatus(status);
+            messageRepository.save(msg);
+        });
+    }
+
     // --- Helper: generate a unique, human-readable message ID ---
     private String generateMessageId() {
         String uuid = UUID.randomUUID().toString().replace("-", "");

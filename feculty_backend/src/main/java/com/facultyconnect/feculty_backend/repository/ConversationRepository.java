@@ -2,6 +2,7 @@ package com.facultyconnect.feculty_backend.repository;
 
 import com.facultyconnect.feculty_backend.model.Conversation;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,10 +16,10 @@ public interface ConversationRepository extends MongoRepository<Conversation, St
     List<Conversation> findByParticipantIdsContaining(String email);
 
     /**
-     * Find a conversation where BOTH emails are in participantIds.
-     * Used to detect whether a one-to-one conversation already exists
-     * between two faculty members, regardless of order.
+     * Find a conversation containing BOTH emails in the participantIds array.
+     * Uses explicit MongoDB $all query to prevent duplicate BSON key errors
+     * caused by derived query parsing.
      */
-    Optional<Conversation> findByParticipantIdsContainingAndParticipantIdsContaining(
-            String emailA, String emailB);
+    @Query("{ 'participantIds': { '$all': [?0, ?1] } }")
+    Optional<Conversation> findByParticipantIds(String emailA, String emailB);
 }
