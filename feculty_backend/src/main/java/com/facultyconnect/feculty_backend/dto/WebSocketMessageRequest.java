@@ -10,6 +10,7 @@ public class WebSocketMessageRequest {
 
     private String conversationId;
     private String content;
+    private String attachmentId;
 
     public WebSocketMessageRequest() {
     }
@@ -17,6 +18,12 @@ public class WebSocketMessageRequest {
     public WebSocketMessageRequest(String conversationId, String content) {
         this.conversationId = conversationId;
         this.content = content;
+    }
+
+    public WebSocketMessageRequest(String conversationId, String content, String attachmentId) {
+        this.conversationId = conversationId;
+        this.content = content;
+        this.attachmentId = attachmentId;
     }
 
     public String getConversationId() {
@@ -33,5 +40,13 @@ public class WebSocketMessageRequest {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getAttachmentId() {
+        return attachmentId;
+    }
+
+    public void setAttachmentId(String attachmentId) {
+        this.attachmentId = attachmentId;
     }
 }

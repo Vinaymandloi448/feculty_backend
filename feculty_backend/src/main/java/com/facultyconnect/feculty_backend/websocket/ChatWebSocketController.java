@@ -55,7 +55,8 @@ public class ChatWebSocketController {
         MessageResponse response = messageService.sendMessage(
                 senderEmail,
                 request.getConversationId(),
-                request.getContent()
+                request.getContent(),
+                request.getAttachmentId()
         );
 
         // 2. Broadcast to topic /topic/conversation/{conversationId}

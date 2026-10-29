@@ -10,6 +10,7 @@ package com.facultyconnect.feculty_backend.dto;
 public class SendMessageRequest {
 
     private String content;
+    private String attachmentId;
 
     // --- Getters and Setters ---
 
@@ -19,5 +20,13 @@ public class SendMessageRequest {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getAttachmentId() {
+        return attachmentId;
+    }
+
+    public void setAttachmentId(String attachmentId) {
+        this.attachmentId = attachmentId;
     }
 }

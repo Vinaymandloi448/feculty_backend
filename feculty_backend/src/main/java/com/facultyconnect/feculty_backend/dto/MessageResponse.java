@@ -17,6 +17,8 @@ public class MessageResponse {
     private String status;
     private Instant createdAt;
     private Instant updatedAt;
+    private String attachmentId;
+    private AttachmentResponse attachment;
 
     // --- Getters and Setters ---
 
@@ -90,5 +92,21 @@ public class MessageResponse {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getAttachmentId() {
+        return attachmentId;
+    }
+
+    public void setAttachmentId(String attachmentId) {
+        this.attachmentId = attachmentId;
+    }
+
+    public AttachmentResponse getAttachment() {
+        return attachment;
+    }
+
+    public void setAttachment(AttachmentResponse attachment) {
+        this.attachment = attachment;
     }
 }

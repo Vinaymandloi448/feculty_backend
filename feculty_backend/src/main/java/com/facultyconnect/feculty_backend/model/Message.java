@@ -30,6 +30,8 @@ public class Message {
 
     private String status;
 
+    private String attachmentId;
+
     @CreatedDate
     private Instant createdAt;
 
@@ -119,5 +121,13 @@ public class Message {
 
     public void setUpdatedAt(Instant updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getAttachmentId() {
+        return attachmentId;
+    }
+
+    public void setAttachmentId(String attachmentId) {
+        this.attachmentId = attachmentId;
     }
 }

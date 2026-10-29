@@ -47,7 +47,7 @@ public class MessageController {
         try {
             String email = authentication.getName();
             MessageResponse response = messageService.sendMessage(
-                    email, conversationId, request.getContent());
+                    email, conversationId, request.getContent(), request.getAttachmentId());
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
