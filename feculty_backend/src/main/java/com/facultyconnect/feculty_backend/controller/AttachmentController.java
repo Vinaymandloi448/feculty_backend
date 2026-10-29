@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -46,7 +47,7 @@ public class AttachmentController {
     @PostMapping(value = "/api/conversations/{conversationId}/attachments", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadAttachment(Authentication authentication,
                                              @PathVariable String conversationId,
-                                             @RequestParam("file") MultipartFile file,
+                                             @RequestPart("file") MultipartFile file,
                                              @RequestParam(value = "content", required = false) String content) {
         try {
             String email = authentication.getName();
@@ -72,13 +73,12 @@ public class AttachmentController {
     @PostMapping(value = "/api/conversations/{conversationId}/messages/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadMessageWithAttachment(Authentication authentication,
                                                          @PathVariable String conversationId,
-                                                         @RequestParam("file") MultipartFile file,
+                                                         @RequestPart("file") MultipartFile file,
                                                          @RequestParam(value = "content", required = false) String content) {
         try {
             String email = authentication.getName();
-            AttachmentResponse response = attachmentService.uploadAttachment(email, conversationId, file, content);
-            MessageResponse messageResponse = response.getMessage();
-            return ResponseEntity.status(HttpStatus.CREATED).body(messageResponse != null ? messageResponse : response);
+            MessageResponse messageResponse = attachmentService.uploadMessageAttachment(email, conversationId, file, content);
+            return ResponseEntity.status(HttpStatus.CREATED).body(messageResponse);
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", ex.getMessage()));

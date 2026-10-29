@@ -19,7 +19,6 @@ public class AttachmentResponse {
     private Instant uploadTimestamp;
     private String downloadUrl;
     private String viewUrl;
-    private MessageResponse message;
 
     public AttachmentResponse() {
     }
@@ -120,13 +119,5 @@ public class AttachmentResponse {
 
     public void setViewUrl(String viewUrl) {
         this.viewUrl = viewUrl;
-    }
-
-    public MessageResponse getMessage() {
-        return message;
-    }
-
-    public void setMessage(MessageResponse message) {
-        this.message = message;
     }
 }

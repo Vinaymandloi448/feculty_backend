@@ -80,11 +80,22 @@ public class AttachmentService {
      * Upload an attachment to a conversation.
      * Verifies conversation membership, validates file, stores on disk safely,
      * persists metadata in MongoDB, creates linked chat message, and broadcasts via WebSocket.
+     * Returns AttachmentResponse containing only required attachment metadata.
      */
     public AttachmentResponse uploadAttachment(String senderEmail,
                                               String conversationId,
                                               MultipartFile file,
                                               String content) {
+        return uploadMessageAttachment(senderEmail, conversationId, file, content).getAttachment();
+    }
+
+    /**
+     * Upload an attachment and return the complete MessageResponse (for chat messaging flow).
+     */
+    public MessageResponse uploadMessageAttachment(String senderEmail,
+                                                   String conversationId,
+                                                   MultipartFile file,
+                                                   String content) {
         // 1. Verify conversation exists and sender is participant
         Conversation conversation = conversationRepository.findByConversationId(conversationId)
                 .orElseThrow(() -> new NoSuchElementException("Conversation not found"));
@@ -165,16 +176,15 @@ public class AttachmentService {
         attachment.setMessageId(savedMessage.getMessageId());
         attachment = attachmentRepository.save(attachment);
 
-        // 9. Build responses
+        // 9. Build responses (acyclic - AttachmentResponse contains metadata only)
         AttachmentResponse attachmentResponse = toResponse(attachment);
         MessageResponse messageResponse = toMessageResponse(savedMessage, attachmentResponse);
-        attachmentResponse.setMessage(messageResponse);
 
         // 10. Broadcast real-time message over WebSocket
         String destination = "/topic/conversation/" + conversationId;
         messagingTemplate.convertAndSend(destination, messageResponse);
 
-        return attachmentResponse;
+        return messageResponse;
     }
 
     /**

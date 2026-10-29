@@ -210,4 +210,86 @@ class AttachmentControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Attachment not found"));
     }
+
+    @Test
+    void uploadAttachment_Returns415_WhenApplicationJsonSent() throws Exception {
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/conversations/CONV-1/attachments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"content\":\"hello\"}")
+                        .principal(mockAuth))
+                .andExpect(status().isUnsupportedMediaType())
+                .andExpect(jsonPath("$.error").value(org.hamcrest.Matchers.containsString("Content-Type 'application/json' is not supported")));
+    }
+
+    @Test
+    void uploadAttachment_Returns400_WhenFilePartMissing() throws Exception {
+        mockMvc.perform(multipart("/api/conversations/CONV-1/attachments")
+                        .param("content", "no file attached")
+                        .principal(mockAuth))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(org.hamcrest.Matchers.containsString("file")));
+    }
+
+    @Test
+    void uploadMessageWithAttachment_Returns201Created_OnSuccess() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "doc.pdf", "application/pdf", "%PDF-1.5 test".getBytes(StandardCharsets.UTF_8));
+
+        AttachmentResponse attResponse = new AttachmentResponse();
+        attResponse.setAttachmentId("ATT-12345");
+        attResponse.setConversationId("CONV-1");
+        attResponse.setOriginalFilename("doc.pdf");
+        attResponse.setMimeType("application/pdf");
+        attResponse.setSize(100);
+
+        MessageResponse msgResponse = new MessageResponse();
+        msgResponse.setMessageId("MSG-789");
+        msgResponse.setConversationId("CONV-1");
+        msgResponse.setSenderId("prof@univ.edu");
+        msgResponse.setContent("doc.pdf");
+        msgResponse.setMessageType("PDF");
+        msgResponse.setAttachmentId("ATT-12345");
+        msgResponse.setAttachment(attResponse);
+
+        when(attachmentService.uploadMessageAttachment(eq("prof@univ.edu"), eq("CONV-1"), any(), eq("doc.pdf")))
+                .thenReturn(msgResponse);
+
+        mockMvc.perform(multipart("/api/conversations/CONV-1/messages/upload")
+                        .file(file)
+                        .param("content", "doc.pdf")
+                        .principal(mockAuth))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.messageId").value("MSG-789"))
+                .andExpect(jsonPath("$.messageType").value("PDF"))
+                .andExpect(jsonPath("$.attachment.attachmentId").value("ATT-12345"));
+    }
+
+    @Test
+    void serialization_NoCircularReference_SerializesCleanly() throws Exception {
+        tools.jackson.databind.ObjectMapper mapper = new tools.jackson.databind.ObjectMapper();
+
+        AttachmentResponse att = new AttachmentResponse();
+        att.setAttachmentId("ATT-1");
+        att.setConversationId("CONV-1");
+        att.setMessageId("MSG-1");
+        att.setOriginalFilename("image.png");
+        att.setMimeType("image/png");
+        att.setSize(512);
+
+        MessageResponse msg = new MessageResponse();
+        msg.setMessageId("MSG-1");
+        msg.setConversationId("CONV-1");
+        msg.setContent("image.png");
+        msg.setMessageType("IMAGE");
+        msg.setAttachmentId("ATT-1");
+        msg.setAttachment(att);
+
+        // Neither serialization should throw StackOverflowError
+        String attJson = mapper.writeValueAsString(att);
+        String msgJson = mapper.writeValueAsString(msg);
+
+        org.junit.jupiter.api.Assertions.assertNotNull(attJson);
+        org.junit.jupiter.api.Assertions.assertNotNull(msgJson);
+        org.junit.jupiter.api.Assertions.assertTrue(msgJson.contains("\"attachmentId\":\"ATT-1\""));
+    }
 }

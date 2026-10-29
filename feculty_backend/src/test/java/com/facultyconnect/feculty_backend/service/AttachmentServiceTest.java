@@ -118,15 +118,20 @@ class AttachmentServiceTest {
         assertEquals(conversationId, response.getConversationId());
         assertNotNull(response.getDownloadUrl());
         assertNotNull(response.getViewUrl());
+        assertNotNull(response.getMessageId());
 
-        // Verify message was created with type PDF and linked attachmentId
-        assertNotNull(response.getMessage());
-        assertEquals("PDF", response.getMessage().getMessageType());
-        assertEquals("Course Syllabus", response.getMessage().getContent());
-        assertEquals(response.getAttachmentId(), response.getMessage().getAttachmentId());
+        // Verify message was created with type PDF and linked attachmentId via uploadMessageAttachment
+        MessageResponse messageResponse = attachmentService.uploadMessageAttachment(
+                senderEmail, conversationId, file, "Course Syllabus");
+        assertNotNull(messageResponse);
+        assertEquals("PDF", messageResponse.getMessageType());
+        assertEquals("Course Syllabus", messageResponse.getContent());
+        assertNotNull(messageResponse.getAttachmentId());
+        assertNotNull(messageResponse.getAttachment());
+        assertEquals("syllabus.pdf", messageResponse.getAttachment().getOriginalFilename());
 
         // Verify broadcast occurred to topic
-        verify(messagingTemplate, times(1))
+        verify(messagingTemplate, atLeastOnce())
                 .convertAndSend(eq("/topic/conversation/" + conversationId), any(MessageResponse.class));
     }
 
@@ -156,10 +161,14 @@ class AttachmentServiceTest {
 
         assertNotNull(response);
         assertEquals("image/png", response.getMimeType());
-        assertNotNull(response.getMessage());
-        assertEquals("IMAGE", response.getMessage().getMessageType());
+        assertNotNull(response.getMessageId());
+
+        MessageResponse msgResponse = attachmentService.uploadMessageAttachment(
+                senderEmail, conversationId, file, null);
+        assertNotNull(msgResponse);
+        assertEquals("IMAGE", msgResponse.getMessageType());
         // Default caption is original filename when caption is null
-        assertEquals("chart.png", response.getMessage().getContent());
+        assertEquals("chart.png", msgResponse.getContent());
     }
 
     @Test
