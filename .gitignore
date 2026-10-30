@@ -1,0 +1,20 @@
+# Local uploads and attachments
+uploads/
+feculty_backend/uploads/
+
+# Build targets
+target/
+feculty_backend/target/
+
+# Environment files and credentials
+*.env
+*.env.*
+.env
+
+# IDE configurations
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.DS_Store

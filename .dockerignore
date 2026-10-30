@@ -1,0 +1,11 @@
+.git
+.gitignore
+.idea
+.vscode
+target/
+feculty_backend/target/
+uploads/
+feculty_backend/uploads/
+*.env
+*.log
+.DS_Store
