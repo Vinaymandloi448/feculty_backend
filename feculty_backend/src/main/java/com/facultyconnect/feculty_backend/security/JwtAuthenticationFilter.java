@@ -41,6 +41,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
+        // --- Fast exit for CORS preflight OPTIONS requests ---
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // --- Step 1: Extract the Authorization header ---
         String authHeader = request.getHeader("Authorization");
 

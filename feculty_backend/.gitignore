@@ -4,6 +4,14 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Local uploads and attachments
+uploads/
+
+# Environment files and credentials
+*.env
+*.env.*
+.env
+
 ### STS ###
 .apt_generated
 .classpath
